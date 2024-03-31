@@ -16,34 +16,54 @@ jobs:
   main:
     runs-on: ubuntu-latest
     steps:
+    # ------------
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      # Connect your workspace on nx.app and uncomment this to enable task distribution.
-      # The "--stop-agents-after" is optional, but allows idle agents to shut down once the "e2e-ci" targets have been requested
-      # - run: npx nx-cloud start-ci-run --distribute-on="5 linux-medium-js" --stop-agents-after="e2e-ci"
-
-      # Cache node_modules
-      - name: use nodejs v4 
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v3
         with:
           node-version: 20
           cache: 'npm'
-          # path: node_modules
-          # key: cache-node-modules-${{hashFiles('package-lock.json')}}
-          run: npm ci
+      # This line enables distribution
+      # The "--stop-agents-after" is optional, but allows idle agents to shut down once the "e2e-ci" targets have been requested
+      # - run: npx nx-cloud start-ci-run --distribute-on="5 linux-medium-js" --stop-agents-after="e2e-ci"
+      - run: npm ci
+
+      - uses: nrwl/nx-set-shas@v3
+      # This line is needed for nx affected to work when CI is running on a PR
+      - run: git branch --track main origin/main
+
+      - run: npx nx-cloud record -- nx format:check
+      - run: npx nx affected -t lint test build e2e-ci
+    # ------------
+      # - uses: actions/checkout@v4
+      #   with:
+      #     fetch-depth: 0
+
+      # # Connect your workspace on nx.app and uncomment this to enable task distribution.
+      # # The "--stop-agents-after" is optional, but allows idle agents to shut down once the "e2e-ci" targets have been requested
+      # # - run: npx nx-cloud start-ci-run --distribute-on="5 linux-medium-js" --stop-agents-after="e2e-ci"
+
+      # # Cache node_modules
+      # - name: use nodejs v4 
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: 20
+      #     cache: 'npm'
+      #     # path: node_modules
+      #     # key: cache-node-modules-${{hashFiles('package-lock.json')}}
+      #     run: npm ci
           
-      # - name: install deps
-      #   if: steps.cache.outputs.cache-hit != 'true'
-      #   run: npm ci
+      # # - name: install deps
+      # #   if: steps.cache.outputs.cache-hit != 'true'
+      # #   run: npm ci
         
-      - name: nx shas
-        uses: nrwl/nx-set-shas@v4
-      - run: |
-          echo "BASE: ${{env.NX_BASE}}"
-          echo "HEAD: ${{env.NX_HEAD}}"
-          
+      # - name: nx shas
+      #   uses: nrwl/nx-set-shas@v4
+      # - run: |
+      #     echo "BASE: ${{env.NX_BASE}}"
+      #     echo "HEAD: ${{env.NX_HEAD}}"
+      
       # - run: npm run pretty-format-check
       # - run: npx nx-cloud record -- nx format:check
       # - run: npx nx affected -t lint test build
@@ -57,8 +77,8 @@ jobs:
         # run: npx nx-cloud record -- nx format:check --base=${{github.sha}}~1
         # run: npx nx-cloud record -- nx format:check
         
-      - name: nx affected
-        run: npx nx affected -t lint test build e2e-ci
+      # - name: nx affected
+      #   run: npx nx affected -t lint test build e2e-ci
         # run: npx nx affected --base=${{github.sha}}~1 --head=${{github.sha}}~1 -t lint test build
         # run: npx nx affected -t lint test build
 
