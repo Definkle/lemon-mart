@@ -31,7 +31,7 @@ jobs:
 
       - uses: nrwl/nx-set-shas@v3
       # This line is needed for nx affected to work when CI is running on a PR
-      - run: git branch --track main origin/main
+      - run: git branch --track main origin/master
 
       - run: npx nx-cloud record -- nx format:check
       - run: npx nx affected -t lint test build e2e-ci
@@ -68,7 +68,7 @@ jobs:
       # - run: npx nx-cloud record -- nx format:check
       # - run: npx nx affected -t lint test build
       # Required for nx affected if we're on a branch
-      - run: git branch --track main origin/master
+      # - run: git branch --track main origin/master
       # This line enables distribution
       # The "--stop-agents-after" is optional, but allows idle agents to shut down once the "e2e-ci" targets have been requested
       # - script: npx nx-cloud start-ci-run --distribute-on="5 linux-medium-js" --stop-agents-after="e2e-ci"
