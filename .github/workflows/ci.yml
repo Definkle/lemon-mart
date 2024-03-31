@@ -13,16 +13,16 @@ permissions:
   contents: read
 
 jobs:
-  main:
+  build:
     runs-on: ubuntu-latest
     steps:
       # ------------
-      - name: Build
+      - name: Build App
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Cache
+      - name: Cache Dependencies
         uses: actions/setup-node@v3
         with:
           node-version: 20
@@ -39,21 +39,21 @@ jobs:
       - run: npx nx-cloud record -- nx format:check
       - run: npx nx affected -t lint test build e2e-ci
 
-      - name: Deploy
-        id: builddeploy
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_WITTY_PEBBLE_07B8D0100 }}
-          node-version: 'v20.12.0'
-          cache: 'npm'
-          # repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
-          action: 'upload'
-          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
-          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          app_location: '/' # App source code path
-          api_location: '' # Api source code path - optional
-          output_location: 'dist/lemon-mart/browser' # Built app content directory - optional
-          ###### End of Repository/Build Configurations ######
+      # - name: Deploy
+      #   id: builddeploy
+      #   uses: Azure/static-web-apps-deploy@v1
+      #   with:
+      #     azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_WITTY_PEBBLE_07B8D0100 }}
+      #     node-version: 'v20.12.0'
+      #     cache: 'npm'
+      #     # repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
+      #     action: 'upload'
+      #     ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
+      #     # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
+      #     app_location: '/' # App source code path
+      #     api_location: '' # Api source code path - optional
+      #     output_location: 'dist/lemon-mart/browser' # Built app content directory - optional
+      #     ###### End of Repository/Build Configurations ######
 
     # ------------
     # - uses: actions/checkout@v4
@@ -102,27 +102,28 @@ jobs:
     # run: npx nx affected --base=${{github.sha}}~1 --head=${{github.sha}}~1 -t lint test build
     # run: npx nx affected -t lint test build
 
-  # build_and_deploy_job:
-  #   if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
-  #   runs-on: ubuntu-latest
-  #   name: Azure Deploy Job
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #       with:
-  #         submodules: true
-  #         lfs: false
-  #     - name: Deploy
-  #       id: builddeploy
-  #       uses: Azure/static-web-apps-deploy@v1
-  #       with:
-  #         azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_WITTY_PEBBLE_07B8D0100 }}
-  #         node-version: 'v20.12.0'
-  #         cache: 'npm'
-  #         # repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
-  #         action: 'upload'
-  #         ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
-  #         # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-  #         app_location: '/' # App source code path
-  #         api_location: '' # Api source code path - optional
-  #         output_location: 'dist/lemon-mart/browser' # Built app content directory - optional
-  #         ###### End of Repository/Build Configurations ######
+  deploy:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: Azure Deploy Job
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+          lfs: false
+      - name: Deploy
+        id: builddeploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_WITTY_PEBBLE_07B8D0100 }}
+          node-version: 'v20.12.0'
+          cache: 'npm'
+          # repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
+          action: 'upload'
+          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
+          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
+          app_location: '/' # App source code path
+          api_location: '' # Api source code path - optional
+          output_location: 'dist/lemon-mart/browser' # Built app content directory - optional
+          ###### End of Repository/Build Configurations ######
