@@ -41,7 +41,7 @@ jobs:
         uses: nrwl/nx-set-shas@v4
       - run: |
           echo "BASE: ${{env.NX_BASE}}"
-          echo "BASE: ${{env.NX_HEAD}}"
+          echo "HEAD: ${{env.NX_HEAD}}"
           
       # - run: npm run pretty-format-check
       # - run: npx nx-cloud record -- nx format:check
@@ -53,10 +53,12 @@ jobs:
       # - script: npx nx-cloud start-ci-run --distribute-on="5 linux-medium-js" --stop-agents-after="e2e-ci"
       
       - name: nx cloud
-        run: npx nx-cloud record -- nx format:check --base=${{github.sha}}~1
+        # run: npx nx-cloud record -- nx format:check --base=${{github.sha}}~1
+        run: npx nx-cloud record -- nx format:check
         
       - name: nx affected
-        run: npx nx affected --base=${{github.sha}}~1 --head=${{github.sha}}~1 -t lint test build
+        # run: npx nx affected --base=${{github.sha}}~1 --head=${{github.sha}}~1 -t lint test build
+        run: npx nx affected -t lint test build
 
   build_and_deploy_job:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
