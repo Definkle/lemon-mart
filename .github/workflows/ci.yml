@@ -17,10 +17,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # ------------
-      - uses: actions/checkout@v4
+      - name: Build
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v3
+
+      - name: Cache
+        uses: actions/setup-node@v3
         with:
           node-version: 20
           cache: 'npm'
@@ -31,12 +34,11 @@ jobs:
 
       - uses: nrwl/nx-set-shas@v3
       # This line is needed for nx affected to work when CI is running on a PR
-      - run: git branch --track master origin/master
+      - run: git branch --track origin/master
 
       - run: npx nx-cloud record -- nx format:check
       - run: npx nx affected -t lint test build e2e-ci
 
-        if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
       - name: Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
