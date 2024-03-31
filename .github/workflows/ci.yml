@@ -30,10 +30,16 @@ jobs:
         with:
           node-version: '20.x'
           cache: 'npm'
+          
       - name: install deps
         run: npm ci
-      - uses: nrwl/nx-set-shas@v4
-
+        
+      - name: nx shas
+        uses: nrwl/nx-set-shas@v4
+      - run: |
+          echo "BASE: ${{env.NX_BASE}}"
+          echo "BASE: ${{env.NX_HEAD}}"
+          
       # - run: npm run pretty-format-check
       # - run: npx nx-cloud record -- nx format:check
       # - run: npx nx affected -t lint test build
@@ -42,8 +48,10 @@ jobs:
       # This line enables distribution
       # The "--stop-agents-after" is optional, but allows idle agents to shut down once the "e2e-ci" targets have been requested
       # - script: npx nx-cloud start-ci-run --distribute-on="5 linux-medium-js" --stop-agents-after="e2e-ci"
+      
       - name: nx cloud
         run: npx nx-cloud record -- nx format:check --base=$(BASE_SHA)
+        
       - name: nx affected
         run: npx nx affected --base=$(BASE_SHA) -t lint test build
 
