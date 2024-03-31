@@ -30,8 +30,11 @@ jobs:
         with:
           node-version: '20.x'
           cache: 'npm'
+          path: node_modules
+          key: cache-node-modules-${{hashFiles('package-lock.json')}}
           
       - name: install deps
+        if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
         
       - name: nx shas
