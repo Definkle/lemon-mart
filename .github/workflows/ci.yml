@@ -56,7 +56,7 @@ jobs:
         run: npx nx-cloud record -- nx format:check --base=${{github.sha}}~1
         
       - name: nx affected
-        run: npx nx affected --base=${{github.sha}}~1 -t lint test build
+        run: npx nx affected --base=${{github.sha}}~1 --head=${{github.sha}}~1 -t lint test build
 
   build_and_deploy_job:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
