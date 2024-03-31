@@ -5,6 +5,8 @@ on:
     branches:
       - master
   pull_request:
+    branches:
+      - master
 
 permissions:
   actions: read
@@ -23,27 +25,38 @@ jobs:
       # - run: npx nx-cloud start-ci-run --distribute-on="5 linux-medium-js" --stop-agents-after="e2e-ci"
 
       # Cache node_modules
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
+      - name: use nodejs v4 
         with:
-          node-version: 20
+          node-version: '20.x'
           cache: 'npm'
-      - run: npm ci
+      - name: install deps
+        run: npm ci
       - uses: nrwl/nx-set-shas@v4
 
       # - run: npm run pretty-format-check
-      - run: npx nx-cloud record -- nx format:check
-      - run: npx nx affected -t lint test build e2e-ci
+      # - run: npx nx-cloud record -- nx format:check
+      # - run: npx nx affected -t lint test build
+      # Required for nx affected if we're on a branch
+      - run: git branch --track main origin/master
+      # This line enables distribution
+      # The "--stop-agents-after" is optional, but allows idle agents to shut down once the "e2e-ci" targets have been requested
+      # - script: npx nx-cloud start-ci-run --distribute-on="5 linux-medium-js" --stop-agents-after="e2e-ci"
+      - name: nx cloud
+        run: npx nx-cloud record -- nx format:check --base=$(BASE_SHA)
+      - name: nx affected
+        run: npx nx affected --base=$(BASE_SHA) -t lint test build
 
   build_and_deploy_job:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
-    name: Build and Deploy Job
+    name: Azure Deploy Job
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: true
           lfs: false
-      - name: Build And Deploy
+      - name: Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
