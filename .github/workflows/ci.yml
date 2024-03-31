@@ -50,10 +50,10 @@ jobs:
       # - script: npx nx-cloud start-ci-run --distribute-on="5 linux-medium-js" --stop-agents-after="e2e-ci"
       
       - name: nx cloud
-        run: npx nx-cloud record -- nx format:check --base=$(BASE_SHA)
+        run: npx nx-cloud record -- nx format:check --base=$(env.NX_BASE)
         
       - name: nx affected
-        run: npx nx affected --base=$(BASE_SHA) -t lint test build
+        run: npx nx affected --base=$(env.NX_BASE) -t lint test build
 
   build_and_deploy_job:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
