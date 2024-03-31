@@ -67,4 +67,5 @@ jobs:
           app_location: '/' # App source code path
           api_location: '' # Api source code path - optional
           output_location: 'dist/lemon-mart/browser' # Built app content directory - optional
+          app_build_command: 'npx nx run lemon-mart:build'
           ###### End of Repository/Build Configurations ######
